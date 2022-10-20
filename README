@@ -1,0 +1,52 @@
+Noaghea Marian-Florentin 323CC
+Tema1PC
+
+(*)Parsare matrice de rutare
+ Am creeat o functie "getRouteTable" care citeste din fisierul rtable si intoarce un vector de 
+route_table_entry.
+
+ Citesc linie cu linie din fisier, fiecare linie este impartita in tokens, fiecare token este 
+convertit corespunzator si pus intr-un struct de tip route_table_entry, structura care este 
+introdusa intr-un vector alocat dinamic din 100 in 100.
+
+ Sortez vectorul cu quicksort, criteriul de sortare principal: sortat crescator dupa prefix,
+ criteriu secundar: sortat descrescator dupa dimensiunea mastii.
+
+(*)Protocolul ARP
+Am creat o functie care cauta in tabela ARP, si una care adauga in tabela(daca entry-ul nu exista)
+Pachetele sunt parsate cu ajutorul API-ului oferit, daca parsarea are loc cu succes(nu intoarce
+NULL) verific daca arp_header-ul are opcode=ul este de tip ARP REQUEST sau ARP REPLY:
+ -APR REQUEST: trebuie sa trimit un ARP REPLY catre adresa MAC a hostului care a facut cererea.
+ -ARP REPLY: am primit adresa MAC a unui host pe care nu il cunosteam
+ 	 ->daca se afla pachete in coada de asteptare trimit pachetul la adresa MAC primita 
+ 	 ->actualizez tabela ARP(daca aceasta nu contine deja entryul respectiv).
+In cazul in care next hopul unui pachet nu exista in tabela ARP, voi pune in coada pachetu si voi
+trimite ARP REQUEST pe broadcast catre next_hop.
+
+Mesajele de tip ARP sunt trimise cu ajutorul functiei send_arp pusa la dispozitie.
+
+(*)Protocolul ICMP
+In cazul in care primesc un pachet icmp verific daca acesta este destinat mie (ip-ul interfetei 
+corespunde cu ip-ul destinatie) daca este destinat mie si este de tip ICMP ECHO voi trimite inapoi
+ICMP ECHOREPLY.
+
+Daca pachetul ajunge la router cu intarziere (ttl <= 1) voi trimite un mesaj ICMP de tipul 
+ICMP_TIME_EXCEEDED.
+
+Daca nu se gaseste o ruta pentru pachet se trimite un mesaj ICMP de tipul ICMP_DEST_UNREACH.
+
+Acest protocol este implementat cu ajutorul API-ului pus la dispozitie: functie de parsare, functie 
+pentru send_icmp si send_icmp_error.
+
+Pasii de verificare sunt facuti in ordinea specificata in enunt, am lasat pentru fiecare punct
+comentariu la care pas se referea codul + comentarii aditionale.
+
+Probleme intampinate: 
+-la testul de host_unreachable aveam o problema cu cautarea in tabela de routare care imi intorcea
+ce se afla dupa sfarsitul vectorului si mereu mi se punea in coada de asteptare pachetul si cumva
+ttl-ul ajungea la 0 si in final trimitea icmp time exeeded.
+-inainte sa pun in coada pachetul nu ii faceam o copie si ulterior sa pun copia in coada, m poitand
+mereu spre aceeasi zona de memorie acesta isi tot schimba valoarea.
+-problema cu htons pentru ether_type, tipuri de ARP
+	
+ 	 
